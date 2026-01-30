@@ -277,6 +277,177 @@ class SoundManager {
     }
 }
 
+// MARK: - Sprite Generator (Pixel Art)
+class SpriteGenerator {
+    static let shared = SpriteGenerator()
+
+    // Cache des textures
+    var squidTextures: [SKTexture] = []
+    var crabTextures: [SKTexture] = []
+    var octopusTextures: [SKTexture] = []
+    var playerTexture: SKTexture?
+
+    init() {
+        generateAllSprites()
+    }
+
+    func generateAllSprites() {
+        // Squid - 2 frames (8x8 pixels, scaled up)
+        let squid1: [[UInt8]] = [
+            [0,0,0,1,1,0,0,0],
+            [0,0,1,1,1,1,0,0],
+            [0,1,1,1,1,1,1,0],
+            [1,1,0,1,1,0,1,1],
+            [1,1,1,1,1,1,1,1],
+            [0,0,1,0,0,1,0,0],
+            [0,1,0,1,1,0,1,0],
+            [1,0,1,0,0,1,0,1],
+        ]
+        let squid2: [[UInt8]] = [
+            [0,0,0,1,1,0,0,0],
+            [0,0,1,1,1,1,0,0],
+            [0,1,1,1,1,1,1,0],
+            [1,1,0,1,1,0,1,1],
+            [1,1,1,1,1,1,1,1],
+            [0,0,1,0,0,1,0,0],
+            [0,1,0,1,1,0,1,0],
+            [0,1,0,0,0,0,1,0],
+        ]
+        squidTextures = [
+            createTexture(from: squid1, color: NSColor.red),
+            createTexture(from: squid2, color: NSColor.red)
+        ]
+
+        // Crab - 2 frames (11x8 pixels)
+        let crab1: [[UInt8]] = [
+            [0,0,1,0,0,0,0,0,1,0,0],
+            [0,0,0,1,0,0,0,1,0,0,0],
+            [0,0,1,1,1,1,1,1,1,0,0],
+            [0,1,1,0,1,1,1,0,1,1,0],
+            [1,1,1,1,1,1,1,1,1,1,1],
+            [1,0,1,1,1,1,1,1,1,0,1],
+            [1,0,1,0,0,0,0,0,1,0,1],
+            [0,0,0,1,1,0,1,1,0,0,0],
+        ]
+        let crab2: [[UInt8]] = [
+            [0,0,1,0,0,0,0,0,1,0,0],
+            [1,0,0,1,0,0,0,1,0,0,1],
+            [1,0,1,1,1,1,1,1,1,0,1],
+            [1,1,1,0,1,1,1,0,1,1,1],
+            [1,1,1,1,1,1,1,1,1,1,1],
+            [0,1,1,1,1,1,1,1,1,1,0],
+            [0,0,1,0,0,0,0,0,1,0,0],
+            [0,1,0,0,0,0,0,0,0,1,0],
+        ]
+        crabTextures = [
+            createTexture(from: crab1, color: NSColor.cyan),
+            createTexture(from: crab2, color: NSColor.cyan)
+        ]
+
+        // Octopus - 2 frames (12x8 pixels)
+        let octopus1: [[UInt8]] = [
+            [0,0,0,0,1,1,1,1,0,0,0,0],
+            [0,1,1,1,1,1,1,1,1,1,1,0],
+            [1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,1,1,0,0,1,1,0,0,1,1,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1],
+            [0,0,0,1,1,0,0,1,1,0,0,0],
+            [0,0,1,1,0,1,1,0,1,1,0,0],
+            [1,1,0,0,0,0,0,0,0,0,1,1],
+        ]
+        let octopus2: [[UInt8]] = [
+            [0,0,0,0,1,1,1,1,0,0,0,0],
+            [0,1,1,1,1,1,1,1,1,1,1,0],
+            [1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,1,1,0,0,1,1,0,0,1,1,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1],
+            [0,0,1,1,1,0,0,1,1,1,0,0],
+            [0,1,1,0,0,1,1,0,0,1,1,0],
+            [0,0,1,1,0,0,0,0,1,1,0,0],
+        ]
+        octopusTextures = [
+            createTexture(from: octopus1, color: NSColor.magenta),
+            createTexture(from: octopus2, color: NSColor.magenta)
+        ]
+
+        // Player ship (13x8 pixels)
+        let player: [[UInt8]] = [
+            [0,0,0,0,0,0,1,0,0,0,0,0,0],
+            [0,0,0,0,0,1,1,1,0,0,0,0,0],
+            [0,0,0,0,0,1,1,1,0,0,0,0,0],
+            [0,1,1,1,1,1,1,1,1,1,1,1,0],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1,1,1,1,1,1],
+        ]
+        playerTexture = createTexture(from: player, color: NSColor.green)
+    }
+
+    func createTexture(from pixels: [[UInt8]], color: NSColor) -> SKTexture {
+        let height = pixels.count
+        let width = pixels[0].count
+        let scale = 3 // Scale up pixels for retro look
+
+        let scaledWidth = width * scale
+        let scaledHeight = height * scale
+
+        var pixelData = [UInt8](repeating: 0, count: scaledWidth * scaledHeight * 4)
+
+        let r = UInt8(color.redComponent * 255)
+        let g = UInt8(color.greenComponent * 255)
+        let b = UInt8(color.blueComponent * 255)
+
+        for y in 0..<height {
+            for x in 0..<width {
+                let pixel = pixels[y][x]
+                if pixel == 1 {
+                    // Scale up the pixel
+                    for sy in 0..<scale {
+                        for sx in 0..<scale {
+                            let scaledX = x * scale + sx
+                            let scaledY = y * scale + sy
+                            let index = (scaledY * scaledWidth + scaledX) * 4
+                            pixelData[index] = r
+                            pixelData[index + 1] = g
+                            pixelData[index + 2] = b
+                            pixelData[index + 3] = 255
+                        }
+                    }
+                }
+            }
+        }
+
+        let data = Data(pixelData)
+        let cgImage = CGImage(
+            width: scaledWidth,
+            height: scaledHeight,
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            bytesPerRow: scaledWidth * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+            provider: CGDataProvider(data: data as CFData)!,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .defaultIntent
+        )!
+
+        return SKTexture(cgImage: cgImage)
+    }
+
+    func getAlienTexture(row: Int, frame: Int) -> SKTexture {
+        switch row {
+        case 0:
+            return squidTextures[frame % 2]
+        case 1, 2:
+            return crabTextures[frame % 2]
+        default:
+            return octopusTextures[frame % 2]
+        }
+    }
+}
+
 // MARK: - Game Constants
 struct GameConfig {
     static let windowWidth: CGFloat = 800
@@ -333,6 +504,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // Player
     var player: SKShapeNode!
+    var playerSprite: SKSpriteNode?
     var lives = 3
     var score = 0
     var level = 1
@@ -429,28 +601,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func setupPlayer() {
-        // Create player ship shape
-        let path = CGMutablePath()
-        path.move(to: CGPoint(x: 0, y: 20))
-        path.addLine(to: CGPoint(x: -15, y: -10))
-        path.addLine(to: CGPoint(x: -5, y: -5))
-        path.addLine(to: CGPoint(x: 0, y: -10))
-        path.addLine(to: CGPoint(x: 5, y: -5))
-        path.addLine(to: CGPoint(x: 15, y: -10))
-        path.closeSubpath()
-
-        player = SKShapeNode(path: path)
-        player.fillColor = .green
-        player.strokeColor = .white
-        player.lineWidth = 2
+        // SKShapeNode invisible pour la physique, sprite bitmap en enfant
+        player = SKShapeNode(rectOf: CGSize(width: 39, height: 24))
+        player.fillColor = .clear
+        player.strokeColor = .clear
         player.position = CGPoint(x: size.width / 2, y: 50)
         player.name = "player"
 
-        player.physicsBody = SKPhysicsBody(polygonFrom: path)
+        player.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 39, height: 24))
         player.physicsBody?.categoryBitMask = PhysicsCategory.player
         player.physicsBody?.contactTestBitMask = PhysicsCategory.enemyBullet | PhysicsCategory.enemy | PhysicsCategory.powerUp
         player.physicsBody?.collisionBitMask = PhysicsCategory.none
         player.physicsBody?.isDynamic = true
+
+        // Sprite bitmap en enfant
+        if let texture = sprites.playerTexture {
+            playerSprite = SKSpriteNode(texture: texture)
+            player.addChild(playerSprite!)
+        }
 
         addChild(player)
     }
@@ -527,16 +695,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     // Animation frame pour les aliens (comme Space Invaders original)
     var alienAnimationFrame = 0
+    let sprites = SpriteGenerator.shared
 
     func createEnemy(row: Int) -> SKNode {
-        let enemy = SKShapeNode()
+        let texture = sprites.getAlienTexture(row: row, frame: 0)
+        let enemy = SKSpriteNode(texture: texture)
         enemy.name = "enemy"
-        enemy.userData = ["row": row, "frame": 0]
+        enemy.userData = ["row": row]
+        enemy.setScale(1.0)
 
-        // Définir la forme initiale
-        updateEnemyShape(enemy, row: row, frame: 0)
-
-        enemy.physicsBody = SKPhysicsBody(circleOfRadius: 12)
+        enemy.physicsBody = SKPhysicsBody(rectangleOf: enemy.size)
         enemy.physicsBody?.categoryBitMask = PhysicsCategory.enemy
         enemy.physicsBody?.contactTestBitMask = PhysicsCategory.playerBullet
         enemy.physicsBody?.collisionBitMask = PhysicsCategory.none
@@ -545,152 +713,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         return enemy
     }
 
-    func updateEnemyShape(_ enemy: SKShapeNode, row: Int, frame: Int) {
-        let path = CGMutablePath()
-
-        switch row {
-        case 0: // Squid (top row) - 2 frames
-            if frame == 0 {
-                // Frame 1: tentacules vers le bas
-                path.move(to: CGPoint(x: 0, y: 8))
-                path.addLine(to: CGPoint(x: -4, y: 6))
-                path.addLine(to: CGPoint(x: -8, y: 8))
-                path.addLine(to: CGPoint(x: -6, y: 2))
-                path.addLine(to: CGPoint(x: -10, y: -2))
-                path.addLine(to: CGPoint(x: -6, y: -2))
-                path.addLine(to: CGPoint(x: -8, y: -8))
-                path.addLine(to: CGPoint(x: -4, y: -4))
-                path.addLine(to: CGPoint(x: 0, y: -8))
-                path.addLine(to: CGPoint(x: 4, y: -4))
-                path.addLine(to: CGPoint(x: 8, y: -8))
-                path.addLine(to: CGPoint(x: 6, y: -2))
-                path.addLine(to: CGPoint(x: 10, y: -2))
-                path.addLine(to: CGPoint(x: 6, y: 2))
-                path.addLine(to: CGPoint(x: 8, y: 8))
-                path.addLine(to: CGPoint(x: 4, y: 6))
-                path.closeSubpath()
-            } else {
-                // Frame 2: tentacules vers l'extérieur
-                path.move(to: CGPoint(x: 0, y: 8))
-                path.addLine(to: CGPoint(x: -4, y: 6))
-                path.addLine(to: CGPoint(x: -8, y: 8))
-                path.addLine(to: CGPoint(x: -6, y: 2))
-                path.addLine(to: CGPoint(x: -10, y: 0))
-                path.addLine(to: CGPoint(x: -6, y: -2))
-                path.addLine(to: CGPoint(x: -10, y: -6))
-                path.addLine(to: CGPoint(x: -4, y: -6))
-                path.addLine(to: CGPoint(x: 0, y: -4))
-                path.addLine(to: CGPoint(x: 4, y: -6))
-                path.addLine(to: CGPoint(x: 10, y: -6))
-                path.addLine(to: CGPoint(x: 6, y: -2))
-                path.addLine(to: CGPoint(x: 10, y: 0))
-                path.addLine(to: CGPoint(x: 6, y: 2))
-                path.addLine(to: CGPoint(x: 8, y: 8))
-                path.addLine(to: CGPoint(x: 4, y: 6))
-                path.closeSubpath()
-            }
-            enemy.fillColor = .red
-
-        case 1, 2: // Crab (middle rows) - 2 frames
-            if frame == 0 {
-                // Frame 1: pinces vers le haut
-                path.move(to: CGPoint(x: -12, y: 6))
-                path.addLine(to: CGPoint(x: -10, y: 10))
-                path.addLine(to: CGPoint(x: -8, y: 6))
-                path.addLine(to: CGPoint(x: -6, y: 6))
-                path.addLine(to: CGPoint(x: -4, y: 4))
-                path.addLine(to: CGPoint(x: 4, y: 4))
-                path.addLine(to: CGPoint(x: 6, y: 6))
-                path.addLine(to: CGPoint(x: 8, y: 6))
-                path.addLine(to: CGPoint(x: 10, y: 10))
-                path.addLine(to: CGPoint(x: 12, y: 6))
-                path.addLine(to: CGPoint(x: 10, y: 0))
-                path.addLine(to: CGPoint(x: 12, y: -4))
-                path.addLine(to: CGPoint(x: 8, y: -6))
-                path.addLine(to: CGPoint(x: 6, y: -10))
-                path.addLine(to: CGPoint(x: 4, y: -6))
-                path.addLine(to: CGPoint(x: -4, y: -6))
-                path.addLine(to: CGPoint(x: -6, y: -10))
-                path.addLine(to: CGPoint(x: -8, y: -6))
-                path.addLine(to: CGPoint(x: -12, y: -4))
-                path.addLine(to: CGPoint(x: -10, y: 0))
-                path.closeSubpath()
-            } else {
-                // Frame 2: pinces vers le bas
-                path.move(to: CGPoint(x: -12, y: 4))
-                path.addLine(to: CGPoint(x: -10, y: 6))
-                path.addLine(to: CGPoint(x: -8, y: 4))
-                path.addLine(to: CGPoint(x: -6, y: 6))
-                path.addLine(to: CGPoint(x: -4, y: 4))
-                path.addLine(to: CGPoint(x: 4, y: 4))
-                path.addLine(to: CGPoint(x: 6, y: 6))
-                path.addLine(to: CGPoint(x: 8, y: 4))
-                path.addLine(to: CGPoint(x: 10, y: 6))
-                path.addLine(to: CGPoint(x: 12, y: 4))
-                path.addLine(to: CGPoint(x: 10, y: 0))
-                path.addLine(to: CGPoint(x: 12, y: -4))
-                path.addLine(to: CGPoint(x: 10, y: -8))
-                path.addLine(to: CGPoint(x: 6, y: -6))
-                path.addLine(to: CGPoint(x: 4, y: -8))
-                path.addLine(to: CGPoint(x: -4, y: -8))
-                path.addLine(to: CGPoint(x: -6, y: -6))
-                path.addLine(to: CGPoint(x: -10, y: -8))
-                path.addLine(to: CGPoint(x: -12, y: -4))
-                path.addLine(to: CGPoint(x: -10, y: 0))
-                path.closeSubpath()
-            }
-            enemy.fillColor = .cyan
-
-        default: // Octopus (bottom rows) - 2 frames
-            if frame == 0 {
-                // Frame 1: tentacules serrées
-                path.move(to: CGPoint(x: 0, y: 8))
-                path.addLine(to: CGPoint(x: -6, y: 6))
-                path.addLine(to: CGPoint(x: -10, y: 4))
-                path.addLine(to: CGPoint(x: -8, y: 0))
-                path.addLine(to: CGPoint(x: -10, y: -4))
-                path.addLine(to: CGPoint(x: -6, y: -4))
-                path.addLine(to: CGPoint(x: -8, y: -8))
-                path.addLine(to: CGPoint(x: -4, y: -6))
-                path.addLine(to: CGPoint(x: -2, y: -10))
-                path.addLine(to: CGPoint(x: 0, y: -6))
-                path.addLine(to: CGPoint(x: 2, y: -10))
-                path.addLine(to: CGPoint(x: 4, y: -6))
-                path.addLine(to: CGPoint(x: 8, y: -8))
-                path.addLine(to: CGPoint(x: 6, y: -4))
-                path.addLine(to: CGPoint(x: 10, y: -4))
-                path.addLine(to: CGPoint(x: 8, y: 0))
-                path.addLine(to: CGPoint(x: 10, y: 4))
-                path.addLine(to: CGPoint(x: 6, y: 6))
-                path.closeSubpath()
-            } else {
-                // Frame 2: tentacules écartées
-                path.move(to: CGPoint(x: 0, y: 8))
-                path.addLine(to: CGPoint(x: -6, y: 6))
-                path.addLine(to: CGPoint(x: -10, y: 4))
-                path.addLine(to: CGPoint(x: -8, y: 0))
-                path.addLine(to: CGPoint(x: -10, y: -4))
-                path.addLine(to: CGPoint(x: -8, y: -6))
-                path.addLine(to: CGPoint(x: -12, y: -10))
-                path.addLine(to: CGPoint(x: -4, y: -8))
-                path.addLine(to: CGPoint(x: -2, y: -6))
-                path.addLine(to: CGPoint(x: 0, y: -8))
-                path.addLine(to: CGPoint(x: 2, y: -6))
-                path.addLine(to: CGPoint(x: 4, y: -8))
-                path.addLine(to: CGPoint(x: 12, y: -10))
-                path.addLine(to: CGPoint(x: 8, y: -6))
-                path.addLine(to: CGPoint(x: 10, y: -4))
-                path.addLine(to: CGPoint(x: 8, y: 0))
-                path.addLine(to: CGPoint(x: 10, y: 4))
-                path.addLine(to: CGPoint(x: 6, y: 6))
-                path.closeSubpath()
-            }
-            enemy.fillColor = .magenta
-        }
-
-        enemy.path = path
-        enemy.strokeColor = .white
-        enemy.lineWidth = 1
+    func updateEnemySprite(_ enemy: SKSpriteNode, row: Int, frame: Int) {
+        enemy.texture = sprites.getAlienTexture(row: row, frame: frame)
     }
 
     func spawnBoss() {
@@ -1628,10 +1652,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 enemy.position.y -= 15
             }
 
-            // Animer l'alien
-            if let shapeEnemy = enemy as? SKShapeNode,
+            // Animer l'alien (sprite bitmap)
+            if let spriteEnemy = enemy as? SKSpriteNode,
                let row = enemy.userData?["row"] as? Int {
-                updateEnemyShape(shapeEnemy, row: row, frame: alienAnimationFrame)
+                updateEnemySprite(spriteEnemy, row: row, frame: alienAnimationFrame)
             }
 
             // Check if enemies reached player
@@ -1668,10 +1692,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // Vitesse maximum: 20 pixels par frame = 1200 pixels/seconde à 60 FPS
             enemy.position.x += 20 * enemyDirection
 
-            // Animer l'alien
-            if let shapeEnemy = enemy as? SKShapeNode,
+            // Animer l'alien (sprite bitmap)
+            if let spriteEnemy = enemy as? SKSpriteNode,
                let row = enemy.userData?["row"] as? Int {
-                updateEnemyShape(shapeEnemy, row: row, frame: alienAnimationFrame)
+                updateEnemySprite(spriteEnemy, row: row, frame: alienAnimationFrame)
             }
 
             // Check if enemies reached player
@@ -1806,13 +1830,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         // Effet visuel sur le joueur
         if godMode {
-            player.fillColor = .yellow
-            player.strokeColor = .red
-            player.lineWidth = 3
+            playerSprite?.color = .yellow
+            playerSprite?.colorBlendFactor = 0.5
         } else {
-            player.fillColor = .green
-            player.strokeColor = .white
-            player.lineWidth = 2
+            playerSprite?.colorBlendFactor = 0
         }
 
         let fadeOut = SKAction.sequence([
